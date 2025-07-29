@@ -1,0 +1,4 @@
+ldi r3, 34
+ldi r6, 5
+ldi r2, 11
+end

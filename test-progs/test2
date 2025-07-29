@@ -1,0 +1,7 @@
+ldi r1, 3
+ldi r0, 1
+ldi r2, 17
+mod r3, r2, r1
+mul r2, r2, r0
+sub r4, r1, r2
+end

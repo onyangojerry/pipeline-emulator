@@ -12,7 +12,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright (c) 2025: ST, Pomona College.
- * Contributor: Your Student ID here. Don't deanonymize yourself before grading!
+ * Contributor: Your name here!
  */
 
 #include "components/register_file.hh"

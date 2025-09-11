@@ -9,6 +9,9 @@ instructions = [line.strip() for line in f.readlines()]
 f.close()
 
 for inst_num, inst in zip(range(len(instructions)), instructions):
+	if inst_num >= 25:
+		break
+
 	tokens = [x.replace('r', '') if ',' not in x else x[:-1].replace('r', '') for x in inst.split()]
 	try:
 		if tokens[0] == 'ldi':
@@ -28,8 +31,8 @@ for inst_num, inst in zip(range(len(instructions)), instructions):
 	except IndexError:
 		exit('Illegal instruction format!')
 
-	print(f'instruction {inst_num} :  {"\t".join(["r" + str(i) + " :   " + str(regs[i]) for i in range(len(regs))])}')
-	time.sleep(2)
+	reg_str = "\t".join(["r" + str(i) + " :   " + str(regs[i]) for i in range(len(regs))])
+	print(f'instruction {inst_num} :  {reg_str}')
 
 if tokens[0] != 'end':
 	exit('Did not reach end of program!')

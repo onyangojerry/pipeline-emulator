@@ -37,8 +37,16 @@ class HazardCheckingUnit
     bool operandDependence()
     {
         // TODO: your implementation here!
+        if(!decode_to_execute_register->valid) return false;
+        if(!execute_to_writeback_register->valid) return false;
+        if(!execute_to_writeback_register->do_write) return false;
 
-        return false;
+        const int rdP = execute_to_writeback_register->rd;
+
+        if (rdP == 0) return false;   // ignore r0 dependencies
+
+        // If consumer reads rdP as rs1 or rs2, it's a RAW hazard
+        return (decode_to_execute_register->rs1 == rdP) || (decode_to_execute_register->rs2 == rdP);
     };
 };
 

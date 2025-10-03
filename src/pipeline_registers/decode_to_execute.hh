@@ -15,6 +15,8 @@
  * Contributor: Your name here!
  */
 
+#include <string>
+
 #ifndef __DECODE_TO_EXECUTE__
 #define __DECODE_TO_EXECUTE__
 
@@ -22,6 +24,17 @@ class DecodeToExecute
 {
   public:
     // TODO: your fields here!
+    bool        valid = false;
+    int         pc    = 0;
+    std::string operation;   // "ldi", "add", "sub", "mul", "div", "mod"
+    int         rd    = 0;
+    int         rs1   = 0;
+    int         rs2   = 0;
+    int         imm   = 0;
+    int         v1    = 0;   // value of rs1
+    int         v2    = 0;   // value of rs2
+
+    void clear() { valid = false; }
 };
 
 #endif // __DECODE_TO_EXECUTE__

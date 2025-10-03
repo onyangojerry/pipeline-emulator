@@ -12,7 +12,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright (c) 2025: ST, Pomona College.
- * Contributor: Your name here!
+ * Contributor: Jerry Onyango
  */
 
 #include "pipeline_registers/decode_to_execute.hh"
@@ -27,6 +27,10 @@ class ForwardingUnit
     DecodeToExecute *decode_to_execute_register;
     ExecuteToWriteback *execute_to_writeback_register;
 
+    static inline bool writes_dest(const std::string& op) {
+        return (op=="ldi" || op=="add" || op=="sub" || op=="mul" || op=="div" || op=="mod");
+    }
+
   public:
     ForwardingUnit(DecodeToExecute *decode_to_execute_register,
                    ExecuteToWriteback *execute_to_writeback_register)
@@ -37,6 +41,12 @@ class ForwardingUnit
     bool operandDependence()
     {
         // TODO: your implementation here!
+        if (!decode_to_execute_register->valid) return false;     // nothing to consume
+        // If EX->WB holds a producer, forward its result into ID->EX.v1/v2
+        if (execute_to_writeback_register->valid && execute_to_writeback_register->do_write && execute_to_writeback_register->rd != 0) {
+            if (decode_to_execute_register->rs1 == execute_to_writeback_register->rd) decode_to_execute_register->v1 = execute_to_writeback_register->result;
+            if (decode_to_execute_register->rs2 == execute_to_writeback_register->rd) decode_to_execute_register->v2 = execute_to_writeback_register->result;
+        }
         return false;
     };
 };

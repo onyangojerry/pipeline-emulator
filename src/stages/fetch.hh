@@ -12,7 +12,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright (c) 2025: ST, Pomona College.
- * Contributor: Your name here!
+ * Contributor: Jerry Onyango
  */
 
 #include "components/instruction_memory.hh"
@@ -30,18 +30,35 @@ class Fetch
 
     // TODO: your additional fields here!
 
+    int pc = 0;
+    bool drain_requested = false;
+
   public:
     Fetch(InstructionMemory *inst_mem, FetchToDecode *fetch_to_decode_register)
       : inst_mem(inst_mem),
         output_register(fetch_to_decode_register)
         // TODO: construct your additional fields here or in the function!
+        
     {  };
+
+    void requestDrain() { drain_requested = true; }
 
     bool tick()
     {
         // TODO: your implementation here!
+        // When draining, stop injecting; drained iff nothing left to hand off.
+        if (drain_requested) return !output_register->valid;
 
-        return false;
+        // If downstream hasn’t consumed last fetch, we stall.
+        if (output_register->valid) return false;
+
+        // Fetch next line (we rely on END to stop the machine before EOF)
+        output_register->valid = true;
+        output_register->pc    = pc;
+        output_register->inst  = inst_mem->getInstruction(pc); // SAFE: we won't reach EOF because END stops us
+        pc += 1;
+
+        return true;
     };
 };
 

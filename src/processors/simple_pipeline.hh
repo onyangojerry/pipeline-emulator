@@ -15,17 +15,17 @@
  * Contributor: Your name here!
  */
 
-#include "components/instruction_memory.hh"
-#include "components/decoder.hh"
-#include "components/register_file.hh"
-#include "components/alu.hh"
-#include "pipeline_registers/fetch_to_decode.hh"
-#include "pipeline_registers/decode_to_execute.hh"
-#include "pipeline_registers/execute_to_writeback.hh"
-#include "stages/fetch.hh"
-#include "stages/decode.hh"
-#include "stages/execute.hh"
-#include "stages/writeback.hh"
+#include "../components/instruction_memory.hh"
+#include "../components/decoder.hh"
+#include "../components/register_file.hh"
+#include "../components/alu.hh"
+#include "../pipeline_registers/fetch_to_decode.hh"
+#include "../pipeline_registers/decode_to_execute.hh"
+#include "../pipeline_registers/execute_to_writeback.hh"
+#include "../stages/fetch.hh"
+#include "../stages/decode.hh"
+#include "../stages/execute.hh"
+#include "../stages/writeback.hh"
 
 #include <string>
 
@@ -97,13 +97,14 @@ class SimplePipelineProcessor
             [[maybe_unused]] bool execute_drained = execute_stage.tick();
             [[maybe_unused]] bool decode_drained = decode_stage.tick();
 
-            // start exit sequence
+            // start exit sequence: once Decode drains, stop Fetch from injecting
             if (decode_drained) {
                 // TODO: how should your implementation handle this case?
+                fetch_stage.requestDrain();
             }
             [[maybe_unused]] bool fetch_drained = fetch_stage.tick();
 
-            done = writeback_drained;
+            done = fetch_drained && decode_drained && execute_drained && writeback_drained;
         } while (!done);
 
         // dump stats and registers!

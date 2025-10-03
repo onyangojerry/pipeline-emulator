@@ -22,6 +22,13 @@ class ExecuteToWriteback
 {
   public:
     // TODO: your fields here!
+    bool valid = false;
+    unsigned pc = 0;
+    int rd = 0;
+    int result = 0;
+    bool do_write = false;
+
+    void clear() { valid = false; }
 };
 
 #endif // __EXECUTE_TO_WRITEBACK__

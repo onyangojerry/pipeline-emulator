@@ -15,12 +15,13 @@
  * Contributor: Your name here!
  */
 
-#include "components/instruction_memory.hh"
-#include "components/decoder.hh"
-#include "components/register_file.hh"
-#include "components/alu.hh"
+#include "../components/instruction_memory.hh"
+#include "../components/decoder.hh"
+#include "../components/register_file.hh"
+#include "../components/alu.hh"
 
 #include <string>
+#include <iostream>
 
 #ifndef __SINGLE_CYCLE__
 #define __SINGLE_CYCLE__
@@ -35,7 +36,7 @@ class SingleCycleProcessor
     ALU alu;
 
     // TODO: your additional fields here!
-
+    int program_counter;
     // some stats for neat accounting
     int cycles_executed;
 
@@ -46,7 +47,8 @@ class SingleCycleProcessor
         register_file(8),
         alu(),
         // TODO: any additional fields constructed here or in the function!
-        cycles_executed(0)
+        cycles_executed(0),
+        program_counter(0)
     {  };
 
     void dumpRegisters()
@@ -63,12 +65,45 @@ class SingleCycleProcessor
 
     void executeProgram()
     {
-         /* Main Execution Loop */
-         while (true) {
-            cycles_executed++;
 
-            // TODO: your implementation here!
+      /* Main Execution Loop */
+      while (true) {
+        cycles_executed++;
+
+        // TODO: your implementation here!
+        
+        // dedited file path to make assembly files accessible
+
+        // fetch instruction
+        string instruction = instruction_memory.getInstruction(program_counter);
+        // decode the instruction
+        string operation;
+        int destination;
+        int source_register1;
+        int source_register2;
+        int imm;
+        decoder.decode(instruction, operation, destination, source_register1, source_register2, imm);
+
+        // handle end instruction
+        if (operation == "end") {
+            break;
         }
+
+        // execute the instruction
+        if (operation == "ldi") {
+            register_file.setRegister(destination, static_cast<unsigned int>(imm));
+        } else {
+            unsigned int oper1 = register_file.getRegister(source_register1);
+            unsigned int oper2 = register_file.getRegister(source_register2);
+            alu.setInputs(operation, oper1, oper2);
+            unsigned int result = alu.execute();
+            register_file.setRegister(destination, result);
+        }
+
+        // update program counter
+        program_counter++;
+
+      }
 
         // dump stats and registers!
         cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;

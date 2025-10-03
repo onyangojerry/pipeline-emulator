@@ -12,15 +12,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright (c) 2025: ST, Pomona College.
- * Contributor: Your name here!
+ * Contributor: Jerry Onyango
  */
 
 #include <cassert>
 #include <fstream>
 #include <string>
 #include <vector>
-
-#include "util.hh"
+#include "../util.hh"
 
 #ifndef __INSTRUCTION_MEMORY__
 #define __INSTRUCTION_MEMORY__

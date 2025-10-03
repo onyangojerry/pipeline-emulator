@@ -44,8 +44,50 @@ class Execute
 
     bool tick()
     {
-	// TODO: your implementation here!
 
+	    // TODO: your implementation here!
+      // If no incoming work, we're drained iff we also have no pending output
+        if (!input_reg->valid) {
+            return (!output_reg->valid);
+        }
+
+        // If downstream hasn't consumed the previous result, we must stall
+        if (output_reg->valid) {
+            return false;
+        }
+
+        // Produce a new EX->WB entry
+        output_reg->valid = true;
+        output_reg->pc    = static_cast<unsigned>(input_reg->pc);
+        output_reg->rd    = input_reg->rd;
+
+        // Compute result
+        const std::string &op = input_reg->operation;
+
+        if (op == "ldi") {
+            // Load-immediate bypasses the ALU
+            output_reg->result = input_reg->imm;
+            output_reg->do_write = true;
+        } else if (op == "add" || op == "sub" || op == "mul" ||
+                   op == "div" || op == "mod") {
+            // Use ALU for binary ops
+            // ALU expects unsigned ints; cast operands (semantics remain simple for this lab)
+            alu->setInputs(op,
+                           static_cast<unsigned>(input_reg->v1),
+                           static_cast<unsigned>(input_reg->v2));
+            output_reg->result  = static_cast<int>(alu->execute());
+            output_reg->do_write = true;
+        } else {
+            // Unknown op: make this loud in debug; or panic if you prefer
+            // panic("Execute: unknown operation: " + op);  // if util.hh allows
+            output_reg->result  = 0;
+            output_reg->do_write = false;
+        }
+
+        // Consume the ID->EX input for this cycle
+        input_reg->clear();
+
+        // Not drained this cycle (we just produced work)
         return false;
     };
 };

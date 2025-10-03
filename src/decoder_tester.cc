@@ -43,6 +43,15 @@ main(int argc, char **argv)
 	std::cout << "Test passed!" << std::endl;
 
 	// TODO: add more!
+	// test case 4
+	std::cout << "Test case 4: mod r2, r1, r4" << std::endl;
+	d.decode("mod r2, r1, r4", operation, destination, source_register1, source_register2, imm);
+	assert(operation == "mod");
+	assert(destination == 2);
+	assert(source_register1 == 1);
+	assert(source_register2 == 4);
+	assert(imm == 0);
+	std::cout << "Test passed!" << std::endl;
 
 	return 0;
 }

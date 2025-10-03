@@ -12,7 +12,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright (c) 2025: ST, Pomona College.
- * Contributor: Your name here!
+ * Contributor: Jerry Onyango
  */
 
 #include "components/register_file.hh"
@@ -38,10 +38,24 @@ class Writeback
         // TODO: construct your additional fields here or in the function!
     {  };
 
+    // Return true when this stage is drained (no work present this cycle).
     bool tick()
     {
         // TODO: your implementation here!
+        // If there's nothing to commit, WB is empty/drained this cycle.
+        if (!input_reg->valid) {
+            return true;
+        }
 
+        // Commit result to the architectural state if requested.
+        if (input_reg->do_write /* commit control */ && input_reg->rd != 0 /* optional r0 guard */) {
+            register_file->setRegister(input_reg->rd, input_reg->result);
+        }
+
+        // Consume the EX->WB bubble for this cycle.
+        input_reg->clear();
+
+        // We just did work this cycle; not drained until next cycle when input is empty.
         return false;
     };
 };

@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "util.hh"
+#include "../util.hh"
 
 #ifndef __ALU__
 #define __ALU__

@@ -1,0 +1,12 @@
+ldi r1, 1 \n
+ldi r0, 1 \n
+add r1, r1, r0 \n
+add r1,	r1, r0 \n
+add r1,	r1, r0 \n
+add r1,	r1, r0 \n
+add r1,	r1, r0 \n
+add r1,	r1, r0 \n
+add r1,	r1, r0 \n
+add r1,	r1, r0 \n
+add r1,	r1, r0 \n
+end

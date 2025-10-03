@@ -12,7 +12,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright (c) 2025: ST, Pomona College.
- * Contributor: Your name here!
+ * Contributor: Jerry Onyango
  */
 
 #include "components/instruction_memory.hh"
@@ -95,30 +95,67 @@ class ForwardingProcessor
     };
 
     void executeProgram()
-    {
-        bool done = false;
-        do {
-            cycles_executed++;
+{
+    bool done = false;
+    do {
+        cycles_executed++;
 
-            // advance pipeline stages for the next step
-            [[maybe_unused]] bool writeback_drained = writeback_stage.tick();
-            [[maybe_unused]] bool execute_drained = execute_stage.tick();
-            [[maybe_unused]] bool decode_drained = decode_stage.tick();
+        // 1) Snapshot fetch->decode for possible restore on stall
+        FetchToDecode f2d_snapshot = fetch_to_decode_register;
 
-            // TODO: check for hazard
-            if (false) {
-            } else {
-                // start exit sequence
-                if (decode_drained) {
-                    // TODO: use your exit methodology from the previous section here!
-                }
-                [[maybe_unused]] bool fetch_drained = fetch_stage.tick();
+        // 2) Snapshot execution input before execution tick (detect the one un-forwardable case)
+        DecodeToExecute ex_in_snapshot = decode_to_execute_register;
+
+        // advance pipeline stages for the next step
+        [[maybe_unused]] bool writeback_drained = writeback_stage.tick();
+        [[maybe_unused]] bool execute_drained = execute_stage.tick();
+        [[maybe_unused]] bool decode_drained = decode_stage.tick();
+
+        // TODO: check for hazard
+        // Forward execution->writeback → decode->execution (patch v1/v2 in place)
+        (void)forwarding_unit.operandDependence();
+
+        // Remaining hazard: consumer depends on instruction that fed execution this cycle
+        auto writes_dest = [&](const DecodeToExecute& in)->bool {
+            if (!in.valid) return false;
+            if (in.rd == 0) return false;
+            const std::string& op = in.operation;
+            return (op=="ldi" || op=="add" || op=="sub" || op=="mul" || op=="div" || op=="mod");
+        };
+
+        bool cant_forward = false;
+        if (decode_to_execute_register.valid && writes_dest(ex_in_snapshot)) {
+            int rd_prev = ex_in_snapshot.rd;
+            cant_forward = (decode_to_execute_register.rs1 == rd_prev) ||
+                           (decode_to_execute_register.rs2 == rd_prev);
+        }
+
+        if (cant_forward) {
+            decode_to_execute_register.clear();
+
+            if (!fetch_to_decode_register.valid && f2d_snapshot.valid) {
+                fetch_to_decode_register = f2d_snapshot;
             }
 
-            done = writeback_drained;
-        } while (!done);
+            done = false;
+            continue;  // next cycle, producer moves to execute->writeback; then forwarding works
+        }
 
-        // dump stats and registers!
+        // start exit sequence
+        if (decode_drained) {
+            fetch_stage.requestDrain();
+        }
+        bool fetch_drained = fetch_stage.tick();
+
+        // Finish only when all stages drained
+        done = fetch_drained && decode_drained && execute_drained && writeback_drained;
+
+    } while (!done);
+
+    // ... stats + dump ...
+
+
+
         cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
         cout << " ~~~~~ Final stats (forwarding) ~~~~~ " << endl;
         cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;

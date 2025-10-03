@@ -1,0 +1,8 @@
+ldi r2, 2
+div r1, r2, r2
+add r3, r1, r2
+add r4, r3, r1
+add r5, r4, r1
+add r6, r5, r1
+add r7, r6, r1
+end

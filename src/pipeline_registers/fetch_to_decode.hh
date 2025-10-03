@@ -12,7 +12,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright (c) 2025: ST, Pomona College.
- * Contributor: Your name here!
+ * Contributor: Jerry Onyango
  */
 
 #include <string>
@@ -24,6 +24,11 @@ class FetchToDecode
 {
   public:
     // TODO: your fields here!
+    bool valid = false;
+    unsigned pc = 0; // index to instruction memory
+    std::string inst;        // the raw assembly line
+
+    void clear() { valid = false; }
 };
 
 #endif // __FETCH_TO_DECODE__

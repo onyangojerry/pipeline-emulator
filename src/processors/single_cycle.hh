@@ -12,7 +12,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright (c) 2025: ST, Pomona College.
- * Contributor: Your name here!
+ * Contributor: Jerry Onyango
  */
 
 #include "../components/instruction_memory.hh"
@@ -41,24 +41,25 @@ class SingleCycleProcessor
     int cycles_executed;
 
   public:
-    SingleCycleProcessor(string program_filename)
+    SingleCycleProcessor(std::string program_filename)
       : instruction_memory(program_filename),
         decoder(),
         register_file(8),
         alu(),
         // TODO: any additional fields constructed here or in the function!
-        cycles_executed(0),
-        program_counter(0)
+        program_counter(0),
+        cycles_executed(0)
+        
     {  };
 
     void dumpRegisters()
     {
         for (int i = 0; i < 8 /* num_registers */; i++) {
-            cout << "r" << i << ":    " << register_file.getRegister(i);
+            std::cout << "r" << i << ":    " << register_file.getRegister(i);
             if (i % 2 == 0) {
-                cout << "\t";
+                std::cout << "\t";
             } else {
-                cout << "\n";
+                std::cout << "\n";
             }
         }
     };
@@ -75,9 +76,9 @@ class SingleCycleProcessor
         // dedited file path to make assembly files accessible
 
         // fetch instruction
-        string instruction = instruction_memory.getInstruction(program_counter);
+        std::string instruction = instruction_memory.getInstruction(program_counter);
         // decode the instruction
-        string operation;
+        std::string operation;
         int destination;
         int source_register1;
         int source_register2;
@@ -85,19 +86,26 @@ class SingleCycleProcessor
         decoder.decode(instruction, operation, destination, source_register1, source_register2, imm);
 
         // handle end instruction
-        if (operation == "end") {
+        if (operation == "end" || operation == "END") {
             break;
         }
 
         // execute the instruction
         if (operation == "ldi") {
+          if (destination != 0) {
             register_file.setRegister(destination, static_cast<unsigned int>(imm));
+
+          }
+            
         } else {
             unsigned int oper1 = register_file.getRegister(source_register1);
             unsigned int oper2 = register_file.getRegister(source_register2);
             alu.setInputs(operation, oper1, oper2);
             unsigned int result = alu.execute();
-            register_file.setRegister(destination, result);
+            if (destination != 0) {
+                    register_file.setRegister(destination, result);
+                }
+            //register_file.setRegister(destination, result);
         }
 
         // update program counter
@@ -106,9 +114,9 @@ class SingleCycleProcessor
       }
 
         // dump stats and registers!
-        cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
-        cout << " ~~~~~~ Final stats (single cycle) ~~~~~ " << endl;
-        cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
+        std::cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << std::endl;
+        std::cout << " ~~~~~~ Final stats (single cycle) ~~~~~ " << std::endl;
+        std::cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << std::endl;
 
         cout << "cycles run     :   " << cycles_executed << endl;
 
@@ -118,3 +126,4 @@ class SingleCycleProcessor
 };
 
 #endif // __SINGLE_CYCLE__
+
